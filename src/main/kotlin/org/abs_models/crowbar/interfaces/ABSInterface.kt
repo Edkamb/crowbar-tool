@@ -17,7 +17,7 @@ import org.abs_models.frontend.typechecker.Type
 
 fun translateABSExpToSymExpr(input : Exp) : Expr {
     val specialKeywords = listOf("old") //TODO: add "last"
-    return when(input){
+    val converted = when(input){
         is FieldUse        -> Field(input.name+"_f",input.type.simpleName)
         is IntLiteral      -> Const(input.content)
         is GetExp          -> readFut(translateABSExpToSymExpr(input.pureExp))
@@ -85,6 +85,8 @@ fun translateABSExpToSymExpr(input : Exp) : Expr {
         }
         else -> throw Exception("Translation of ${input::class} not supported, term is $input" )
     }
+    converted.absExp = input
+    return converted
 }
 
 fun translateABSStmtToSymStmt(input: Stmt?) : org.abs_models.crowbar.data.Stmt {

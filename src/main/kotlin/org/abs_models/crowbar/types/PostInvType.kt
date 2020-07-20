@@ -246,12 +246,14 @@ class PITCallAssign(repos: Repository) : PITAssign(repos, Modality(
 
     override fun transform(cond: MatchCondition, input : SymbolicState): List<SymbolicTree> {
         val lhs = cond.map[LocationAbstractVar("LHS")] as Location
-        val callee = exprToTerm(cond.map[ExprAbstractVar("CALLEE")] as Expr)
+        val calleeExpr = (cond.map[ExprAbstractVar("CALLEE")] as Expr)
+        val callee = exprToTerm(calleeExpr)
         val call = cond.map[CallExprAbstractVar("CALL")] as CallExpr
         val remainder = cond.map[StmtAbstractVar("CONT")] as Stmt
         val target = cond.map[PostInvAbstractVar("TYPE")] as DeductType
 
-
+        val absExp = calleeExpr.absExp
+        val isNonNull = absExp?.nonNull() ?: false
         val nonenull = LogicNode(
             input.condition,
             UpdateOnFormula(input.update, Not(Predicate("=", listOf(callee,Function("0", emptyList())))))
@@ -292,7 +294,7 @@ class PITCallAssign(repos: Repository) : PITAssign(repos, Modality(
                                             target,
                                             And(input.condition, UpdateOnFormula(input.update,UpdateOnFormula(updateNew,subst(postCond, substPostMap) as Formula))),
                                             input.update)
-
+        if (isNonNull) return listOf(pre, next)
         return listOf(nonenull,pre,next)
     }
 }
