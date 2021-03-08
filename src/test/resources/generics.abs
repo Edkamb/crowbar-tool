@@ -9,7 +9,7 @@ data Type = Type1 | Type2;
 [Ensures(result != Just(Nothing))]
 def Maybe<Maybe<Int>> trivialFunction(Int x) = Just(Just(1));
 
-class MaybeClass(Maybe<Int> f, Type f1) {
+class MaybeClass(Maybe<Int> f, Type f1, Int fi) {
 
     [Ensures(Just(1) == Just(1))]
     Unit trivialSuccess (){
@@ -54,6 +54,12 @@ class MaybeClass(Maybe<Int> f, Type f1) {
         return res;
     }
 
+    [Requires(this.fi == 0)]
+    [Ensures(Just(old(this.fi)) == this.f)]
+    Unit wrappedOldSuccess(){
+        this.f = Just(0);
+    }
+
 }
 
 class PairClass(Pair<Type, Bool> f, Type f1, Type f2) {
@@ -82,6 +88,12 @@ class PairClass(Pair<Type, Bool> f, Type f1, Type f2) {
     Bool updateFieldWrapSuccess(){
         this.f = Pair(Type1, True);
         return True;
+    }
+
+    [Requires(this.f1 == Type1)]
+    [Ensures(Pair(old(this.f1),False) == this.f)]
+    Unit wrappedOldSuccess(){
+        this.f = Pair(Type1,False);
     }
 }
 
@@ -113,7 +125,11 @@ class ListClass(List<Type> list, Type ft){
        return Type1;
    }
 
-
+    [Requires(this.ft == Type2)]
+    [Ensures(Cons(old(this.ft),Nil) == this.list)]
+    Unit wrappedOldSuccess(){
+        this.list = Cons(Type2, Nil);
+    }
 
 }
 
@@ -140,11 +156,11 @@ class TripleClass(Triple<Type,Int,Bool> triple,Int fi){
         this.triple = Triple(Type1, 0,False);
     }
 
-    //[Requires(this.fi == 0)]
-    //[Ensures(Triple(Type1, old(this.fi),False) == this.triple)]
-    //Unit oldSuccess(){
-    //    this.triple = Triple(Type1, 0,False);
-    //}
+    [Requires(this.fi == 0)]
+    [Ensures(Triple(Type1, old(this.fi),False) == this.triple)]
+    Unit wrappedOldSuccess(){
+        this.triple = Triple(Type1, 0,False);
+    }
 
 
 }

@@ -37,6 +37,9 @@ class GenericsTest : StringSpec({
             val caseSuccess = classDecl.extractMethodNode (postInv, "caseSuccess", repos)
             executeNode(caseSuccess, repos, postInv) shouldBe true
 
+            val wrappedOldSuccess = classDecl.extractMethodNode (postInv, "wrappedOldSuccess", repos)
+            executeNode(wrappedOldSuccess, repos, postInv) shouldBe true
+
         }
 
         "$smt pair"{
@@ -56,6 +59,9 @@ class GenericsTest : StringSpec({
 
             val updateFieldWrapSuccess = classDecl.extractMethodNode (postInv, "updateFieldWrapSuccess", repos)
             executeNode(updateFieldWrapSuccess, repos, postInv) shouldBe true
+
+            val wrappedOldSuccess = classDecl.extractMethodNode (postInv, "wrappedOldSuccess", repos)
+            executeNode(wrappedOldSuccess, repos, postInv) shouldBe true
 
         }
         "$smt list"{
@@ -78,6 +84,9 @@ class GenericsTest : StringSpec({
             val updateFieldWrapSuccess = classDecl.extractMethodNode (postInv, "updateFieldWrapSuccess", repos)
             executeNode(updateFieldWrapSuccess, repos, postInv) shouldBe true
 
+            val wrappedOldSuccess = classDecl.extractMethodNode (postInv, "wrappedOldSuccess", repos)
+            executeNode(wrappedOldSuccess, repos, postInv) shouldBe true
+
         }
 
         "$smt triple"{
@@ -98,8 +107,8 @@ class GenericsTest : StringSpec({
             val updateFieldTrivialSuccess = classDecl.extractMethodNode (postInv, "updateFieldTrivialSuccess", repos)
             executeNode(updateFieldTrivialSuccess, repos, postInv) shouldBe true
 
-//            val oldSuccess = classDecl.extractMethodNode (postInv, "oldSuccess", repos)
-//            executeNode(oldSuccess, repos, postInv) shouldBe true
+            val wrappedOldSuccess = classDecl.extractMethodNode (postInv, "wrappedOldSuccess", repos)
+            executeNode(wrappedOldSuccess, repos, postInv) shouldBe true
 
         }
     }
