@@ -85,7 +85,7 @@ class PairClass(Pair<Type, Bool> f, Type f1, Type f2) {
     }
 }
 
-class ListClass(List<Type> list){
+class ListClass(List<Type> list, Type ft){
 
    [Ensures(Cons(Type1, Nil) == Cons(Type1, Nil))]
    Unit trivialSuccess (){
@@ -112,6 +112,40 @@ class ListClass(List<Type> list){
        this.list = Cons(Type1, Cons(Type1, Nil));
        return Type1;
    }
+
+
+
+}
+
+class TripleClass(Triple<Type,Int,Bool> triple,Int fi){
+
+    [Ensures(Triple(Type1,3,Type1) == Triple(Type1,3,Type1))]
+    Unit trivialSuccess (){
+    }
+
+    [Ensures(Triple(result,3,result) == Triple(Type1, 3,Type1))]
+    Type trivialWrapResultSuccess (){
+        return Type1;
+    }
+
+
+   [Requires(i == 0)]
+   [Ensures(Triple(result + 1,0,Type1) == Triple(1,0,Type1))]
+   Int wrapExpressionSuccess (Int i){
+       return i;
+   }
+
+   [Ensures(Triple(Type1, 0,False) == this.triple)]
+    Unit updateFieldTrivialSuccess(){
+        this.triple = Triple(Type1, 0,False);
+    }
+
+    //[Requires(this.fi == 0)]
+    //[Ensures(Triple(Type1, old(this.fi),False) == this.triple)]
+    //Unit oldSuccess(){
+    //    this.triple = Triple(Type1, 0,False);
+    //}
+
 
 }
 
