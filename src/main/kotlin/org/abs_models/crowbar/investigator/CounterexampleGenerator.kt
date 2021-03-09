@@ -258,7 +258,6 @@ object CounterexampleGenerator {
             return mapOf()
 
         val parsed = ModelParser.parseScalarValues()
-        val expMap = expressions.zip(parsed).associate { it }
 
         return expressions.zip(parsed).associate { it }
     }
