@@ -64,3 +64,8 @@ fun nextLTTStrategy(repos: Repository) : Strategy =
     DefaultStrategy(listOf(LTTBranch, LTTSyncAssign(repos), LTTLocAssign(repos), LTTAllocAssign(repos),
                            LTTCallAssign(repos), LTTReturn, LTTSkip, LTTIf, LTTAwait, LTTSkipSkip, LTTWhile,
                            LTTScopeSkip))
+
+
+//PDL type
+fun nextPDLStrategy(repos: Repository) : Strategy =
+    DefaultStrategy(listOf(PDLSkip))
