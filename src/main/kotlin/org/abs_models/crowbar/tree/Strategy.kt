@@ -49,6 +49,7 @@ fun getStrategy(clazz: KClass<out DeductType>, repos: Repository) : Strategy =
     when(clazz){
         PostInvType::class   -> nextPITStrategy(repos)
         LocalTypeType::class -> nextLTTStrategy(repos)
+        PDLType::class       -> nextPDLStrategy(repos)
         else                 -> throw Exception("unsupported type $clazz")
     }
 

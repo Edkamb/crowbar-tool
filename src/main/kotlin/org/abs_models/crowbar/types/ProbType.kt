@@ -51,7 +51,7 @@ interface PDLType : DeductType {
 
 data class PDLEquation(val head : String, val split : String, val tail1 : String, val tail2 : String){
     override fun toString(): String =
-        "$head = $split*$tail1 + (1-$split)$tail2 "
+        "$head = $split*$tail1 + (1-$split)*$tail2 "
 
 }
 
