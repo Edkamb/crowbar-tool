@@ -89,6 +89,8 @@ fun translateStatement(input: Stmt?, subst: Map<String, Expr>) : org.abs_models.
             return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.ReturnStmt(expr.first))
         }
         is IfStmt -> {
+            TODO("Extract specification here and decide on what to extract")
+
             val expr = translateExpression(input.conditionNoTransform, returnType, subst, false)
             return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.IfStmt(expr.first, translateStatement(input.then, subst), translateStatement(input.`else`, subst)))
         }
@@ -277,7 +279,10 @@ fun translateExpression(input: Exp, returnType: Type, subst : Map<String, Expr>,
                         FreshGenerator.getFreshProgVar(input.model.intType),
                         listOf<org.abs_models.crowbar.data.Stmt>()
                     )
-                } else throw Exception("Translation of FnApp is not fully supported, term is $input with function ${input.decl.qualifiedName}")
+                } else {
+                    Pair(SExpr(input.name, listOf()), listOf<org.abs_models.crowbar.data.Stmt>())
+                    //throw Exception("Translation of FnApp is not fully supported, term is $input with function ${input.decl.qualifiedName}")
+                }
             }
         }
         is IfExp -> {

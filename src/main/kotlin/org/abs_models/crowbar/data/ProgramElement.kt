@@ -91,6 +91,24 @@ data class IfStmt(val guard : Expr, val thenStmt : Stmt, val elseStmt : Stmt) : 
         super.iterate(f) + guard.iterate(f) + thenStmt.iterate(f) + elseStmt.iterate(f)
     override fun hasReturn(): Boolean = thenStmt.hasReturn() || elseStmt.hasReturn()
 }
+data class DemonicIfStmt(val thenStmt : Stmt, val elseStmt : Stmt) : Stmt {
+    override fun prettyPrint(): String {
+        return "{ ${thenStmt.prettyPrint()} } |_| { ${elseStmt.prettyPrint()} }"
+    }
+    override fun iterate(f: (Anything) -> Boolean) : Set<Anything> =
+        super.iterate(f) + thenStmt.iterate(f) + elseStmt.iterate(f)
+    override fun hasReturn(): Boolean = thenStmt.hasReturn() || elseStmt.hasReturn()
+}
+
+
+data class ProbIfStmt(val guard : Expr, val thenStmt : Stmt, val elseStmt : Stmt) : Stmt {
+    override fun prettyPrint(): String {
+        return "{ ${thenStmt.prettyPrint()} } ${guard.prettyPrint()}_o { ${elseStmt.prettyPrint()} }"
+    }
+    override fun iterate(f: (Anything) -> Boolean) : Set<Anything> =
+        super.iterate(f) + guard.iterate(f) + thenStmt.iterate(f) + elseStmt.iterate(f)
+    override fun hasReturn(): Boolean = thenStmt.hasReturn() || elseStmt.hasReturn()
+}
 
 data class Branch(val matchTerm : Expr, val branch : Stmt) : Anything {
     override fun prettyPrint(): String {
