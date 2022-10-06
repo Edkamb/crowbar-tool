@@ -11,6 +11,7 @@ import org.abs_models.crowbar.tree.SymbolicNode
 import org.abs_models.crowbar.tree.getStrategy
 import org.abs_models.frontend.ast.*
 import org.abs_models.frontend.typechecker.Type
+import org.abs_models.frontend.typechecker.UnknownType
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -97,6 +98,29 @@ fun extractInheritedSpec(mSig : MethodSig, expectedSpec : String, default:Formul
     return direct
 }
 
+fun<T : ASTNode<out ASTNode<*>>?> hasSpec(decl : ASTNode<T>, expectedSpec : String) : Boolean {
+    for (annotation in decl.nodeAnnotations){
+        if(annotation.value !is DataConstructorExp) {
+            throw Exception("Could not extract any specification from $decl because of the expected value")
+        }
+        val annotated = annotation.value as DataConstructorExp
+        if(annotated.constructor == expectedSpec) return true
+    }
+    return false
+}
+
+fun<T : ASTNode<out ASTNode<*>>?> extractTermSpec(decl : ASTNode<T>, expectedSpec : String) : Term? {
+        for (annotation in decl.nodeAnnotations){
+            if(annotation.value !is DataConstructorExp) {
+                throw Exception("Could not extract any specification from $decl because of the expected value")
+            }
+            val annotated = annotation.value as DataConstructorExp
+            if(annotated.constructor != expectedSpec) continue
+            return exprToTerm(translateExpression(annotated.getParam(0) as Exp, UnknownType.INSTANCE, emptyMap(),true).first)
+        }
+    return null
+}
+
 fun<T : ASTNode<out ASTNode<*>>?> extractSpec(decl : ASTNode<T>, expectedSpec : String, returnType: Type, default:Formula = True, multipleAllowed:Boolean = true) : Formula {
     var ret : Formula? = null
     if(decl is FunctionDecl){
@@ -115,7 +139,7 @@ fun<T : ASTNode<out ASTNode<*>>?> extractSpec(decl : ASTNode<T>, expectedSpec : 
         ret = extractInheritedSpec(decl.methodSig,expectedSpec, default)
     }else {
         for (annotation in decl.nodeAnnotations){
-            if(!annotation.type.toString().endsWith(".Spec")) continue
+ //           if(!annotation.type.toString().endsWith(".Spec")) continue
             if(annotation.value !is DataConstructorExp) {
                 throw Exception("Could not extract any specification from $decl because of the expected value")
             }

@@ -1,5 +1,7 @@
 module Dummy;
 
+data NewSpec = Demonic | Prob(Rat);
+
 [Spec: Ensures(x == 2)]
 [Spec: Prob(1/4)]
 {
