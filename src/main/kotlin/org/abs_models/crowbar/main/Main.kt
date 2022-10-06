@@ -91,7 +91,7 @@ class Main : CliktCommand() {
         reporting = reportFlag
 
         if(!Files.exists(report))
-            File(reportPath).writeText("")
+           if(reporting) File(reportPath).writeText("")
 
         if(investigate && deductType != PostInvType::class)
             output("Crowbar  : Counterexamples for types other than PostInv are not supported and may produce unexpected output", Verbosity.SILENT)
