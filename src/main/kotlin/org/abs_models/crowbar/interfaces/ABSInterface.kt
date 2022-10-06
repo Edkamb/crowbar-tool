@@ -3,11 +3,8 @@ package org.abs_models.crowbar.interfaces
 import org.abs_models.crowbar.data.*
 import org.abs_models.crowbar.data.Const
 import org.abs_models.crowbar.data.SkipStmt
-import org.abs_models.crowbar.main.ADTRepos
-import org.abs_models.crowbar.main.FunctionRepos
+import org.abs_models.crowbar.main.*
 import org.abs_models.crowbar.main.FunctionRepos.functionNameSMT
-import org.abs_models.crowbar.main.applyBinding
-import org.abs_models.crowbar.main.extractSpec
 import org.abs_models.crowbar.rule.FreshGenerator
 import org.abs_models.frontend.ast.*
 import org.abs_models.frontend.ast.AssertStmt
@@ -89,10 +86,19 @@ fun translateStatement(input: Stmt?, subst: Map<String, Expr>) : org.abs_models.
             return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.ReturnStmt(expr.first))
         }
         is IfStmt -> {
-            TODO("Extract specification here and decide on what to extract")
+            if(hasSpec(input, "Demonic")) {
+                println("demonic!")
 
-            val expr = translateExpression(input.conditionNoTransform, returnType, subst, false)
-            return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.IfStmt(expr.first, translateStatement(input.then, subst), translateStatement(input.`else`, subst)))
+            }
+            else if(hasSpec(input, "Prob")) {
+                val v = extractTermSpec(input, "Prob")
+                println("prob" + v.toString())
+            } else {
+                println("normal")
+            }
+                val expr = translateExpression(input.conditionNoTransform, returnType, subst, false)
+                return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.IfStmt(expr.first, translateStatement(input.then, subst), translateStatement(input.`else`, subst)))
+
         }
         is AssertStmt -> {
             val expr = translateExpression(input.condition, returnType, subst, false)
