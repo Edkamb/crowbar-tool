@@ -1,9 +1,10 @@
 package org.abs_models.crowbar.types
 
 import org.abs_models.crowbar.data.*
+import org.abs_models.crowbar.interfaces.appendDesugaredCaseExprs
 import org.abs_models.crowbar.interfaces.translateStatement
-import org.abs_models.crowbar.main.Repository
-import org.abs_models.crowbar.main.reporting
+import org.abs_models.crowbar.main.*
+import org.abs_models.crowbar.rule.FreshGenerator
 import org.abs_models.crowbar.rule.MatchCondition
 import org.abs_models.crowbar.rule.Rule
 import org.abs_models.crowbar.tree.SymbolicNode
@@ -40,6 +41,15 @@ interface PDLType : DeductType {
     }
 
     fun extractPDLSpec(mainBlock: MainBlock) : PDLSpec{
+        val postCond = extractSpec(mainBlock, "Ensures",mainBlock.type)
+        println("Post Cond: "+ postCond);//Why just org.abs_models.crowbar.data.Predicate@dd880ff8?
+//        if(hasSpec(mainBlock, "Prob")) {
+            val prob = extractTermSpec(mainBlock, "Prob");
+            println("Probability: "+ prob);
+
+            return PDLSpec(postCond, prob.toString(), setOf(PDLEquation(prob.toString(), "split", FreshGenerator.getFreshPP().toString(), FreshGenerator.getFreshPP().toString())))
+//        }
+
         TODO("IMPLEMENT ME")
     }
 

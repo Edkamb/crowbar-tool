@@ -14,7 +14,6 @@ object FreshGenerator {
     fun getFreshProgVar(dType : Type) : ProgVar = ProgVar("pv_" + (count++), dType)
     fun getFreshPP() : PP = PPId(count++)
     fun getFreshFuture(dType : Type) : ProgVar = ProgVar("fut_"+ (count++), ADTRepos.model!!.getFutType(dType))
-
     fun getFreshObjectId(className: String, map: List<Expr>, type: Type): Expr {
         val newName = "NEW"+(count++)+"_"+map.size
         if (type is UnionType)
