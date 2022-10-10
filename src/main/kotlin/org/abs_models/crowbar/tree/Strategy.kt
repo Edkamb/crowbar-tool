@@ -1,6 +1,7 @@
 package org.abs_models.crowbar.tree
 
 import org.abs_models.crowbar.data.DeductType
+import org.abs_models.crowbar.data.Modality
 import org.abs_models.crowbar.main.Repository
 import org.abs_models.crowbar.rule.Rule
 import org.abs_models.crowbar.types.*
@@ -69,4 +70,4 @@ fun nextLTTStrategy(repos: Repository) : Strategy =
 
 //PDL type
 fun nextPDLStrategy(repos: Repository) : Strategy =
-    DefaultStrategy(listOf(PDLSkip))
+    DefaultStrategy(listOf(PDLSkip, PDLSkipComposition, PDLLocAssign(repos), PDLIf(repos), PDLDemonIf(repos), PDLProbIf(repos)))

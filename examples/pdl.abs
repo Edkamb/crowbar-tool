@@ -3,7 +3,7 @@ module Dummy;
 data NewSpec = Demonic | Prob(Rat);
 
 [Spec: Ensures(x == 2)]
-[Spec: Prob(1/4)]
+
 {
 Int x = 0;
 
@@ -11,7 +11,7 @@ Int x = 0;
 if( True ) { x = 1; }
 else { x = 2; }
 
-[Spec: Prob(1/2)]
+/*[Spec: Demonic]
 if( True ) { x = x + 1; }
-else { x = x + 2; }
+else { x = x + 2; }*/
 }
