@@ -238,7 +238,7 @@ class PDLProbIf(val repos: Repository) : Rule(Modality(
         //then
         val bodyYes = SeqStmt(cond.map[StmtAbstractVar("THEN")] as Stmt, contBody)
         val updateYes = input.update
-        val resThen = SymbolicState(input.condition, updateYes, Modality(bodyYes, PDLSpec(spec.post, expectedValue.toString(), spec.equations.plus(PDLEquation(p, expectedValue.toString(), p1, p2)))), input.exceptionScopes)
+        val resThen = SymbolicState(input.condition, updateYes, Modality(bodyYes, PDLSpec(spec.post, expectedValue.toString(), spec.equations.plus(PDLEquation(p, expectedValue.toString(), p1, p2)))), input.exceptionScopes)//Ask Eduard: Should we also add 0 <= p1 <=1?
         println("PDLProbIf is applied: ")
         println("Probablistic Then branch: "+ resThen.toString())
         //else
