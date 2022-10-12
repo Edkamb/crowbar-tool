@@ -274,7 +274,8 @@ fun executeNode(node : SymbolicNode, repos: Repository, usedType: KClass<out Ded
                 closed = closed && l.evaluate()
             }
             is StaticNode -> {
-                output("Crowbar: open static leaf ${l.str}", Verbosity.SILENT)
+//                output("Crowbar: open static leaf ${l.str}", Verbosity.SILENT)
+                output("Crowbar: open static leaf ${l.equations.toString()}", Verbosity.SILENT)
             }
         }
     }
