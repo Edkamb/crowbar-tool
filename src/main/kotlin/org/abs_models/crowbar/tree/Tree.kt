@@ -5,6 +5,7 @@ import org.abs_models.crowbar.data.Impl
 import org.abs_models.crowbar.data.SymbolicState
 import org.abs_models.crowbar.interfaces.evaluateSMT
 import org.abs_models.crowbar.rule.containsAbstractVar
+import org.abs_models.crowbar.types.PDLEquation
 
 /* general interface for all kinds of nodes */
 interface SymbolicTree : InfoNode{
@@ -23,7 +24,7 @@ interface SymbolicLeaf : SymbolicTree{
 }
 
 
-data class StaticNode(val str : String) : SymbolicLeaf{
+data class StaticNode(val str : String, val equations: Set<PDLEquation> = emptySet()) : SymbolicLeaf{
     override fun finishedExecution() : Boolean = true
     override fun debugString(steps : Int) : String = "NOT IMPLEMENTED"
     override fun collectLeaves() : List<SymbolicLeaf> = listOf(this)

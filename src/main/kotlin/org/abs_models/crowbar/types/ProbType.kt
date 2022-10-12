@@ -1,7 +1,6 @@
 package org.abs_models.crowbar.types
 
 import org.abs_models.crowbar.data.*
-import org.abs_models.crowbar.interfaces.appendDesugaredCaseExprs
 import org.abs_models.crowbar.interfaces.translateStatement
 import org.abs_models.crowbar.main.*
 import org.abs_models.crowbar.rule.FreshGenerator
@@ -102,8 +101,21 @@ object PDLSkip : Rule(Modality(
             ,
             info = NoInfo()
         )
+
+        val stNode: StaticNode?
+        if(res.evaluate()){
+            println(spec.prob + "==1")
+            val eqT = PDLEquation("1","1", spec.prob, "0")
+            stNode = StaticNode("",spec.equations.plus(eqT))
+//            println("Static Node: " + stNode.toString())
+        } else{
+            println(spec.prob + "==0")
+            val eqF = PDLEquation("0","1", spec.prob, "0")
+            stNode = StaticNode("",spec.equations.plus(eqF))
+//            println("Static Node: " + stNode.toString())
+        }
 //        val zeros  = divByZeroNodes(listOf(retExpr), SkipStmt, input, repos)
-        return listOf(res)
+        return listOf(res,stNode)
     }
     }
     object PDLSkipComposition : Rule(Modality(
@@ -118,10 +130,10 @@ object PDLSkip : Rule(Modality(
             val sStat = SymbolicState(
                 input.condition,
                 input.update,
-                Modality(count, PDLSpec(spec.post, spec.prob, setOf())),
+                Modality(count, spec),
                 input.exceptionScopes
             )
-            println("Skip Composition: ")
+//            println("Skip Composition: ")
 //            println(sStat.modality)
             return listOf<SymbolicTree>(SymbolicNode(sStat, info = NoInfo()))//Ask Eduard: Is NoInfo ok here?
         }
@@ -155,7 +167,7 @@ object PDLSkip : Rule(Modality(
         PDLAbstractVar("TYPE"))) {
 
         override fun transform(cond: MatchCondition, input : SymbolicState): List<SymbolicTree> {
-            println("PDLAssign matched")
+//            println("PDLAssign matched")
             val lhs = cond.map[LocationAbstractVar("LHS")] as Location
             val rhsExpr = cond.map[ExprAbstractVar("EXPR")] as Expr
             val rhs = exprToTerm(rhsExpr)
@@ -168,7 +180,7 @@ object PDLSkip : Rule(Modality(
             val zeros  = divByZeroNodes(listOf(rhsExpr), remainder, input, repos)
 
             //consume statement and add ZeroNodes
-            println("PDLLocAssign is applied.")
+//            println("PDLLocAssign is applied.")
             return listOf(symbolicNext(lhs, rhs, remainder, target, input.condition, input.update, info, input.exceptionScopes)) + zeros
         }
     }
@@ -189,15 +201,15 @@ object PDLSkip : Rule(Modality(
             val updateYes = input.update
             val typeYes = cond.map[PDLAbstractVar("TYPE")] as DeductType
             val resThen = SymbolicState(And(input.condition, UpdateOnFormula(updateYes, guardYes)), updateYes, Modality(bodyYes, typeYes), input.exceptionScopes)
-           println("PDLIf is applied: ")
-            println("PDLIf Then branch: "+ resThen.toString())
+//           println("PDLIf is applied: ")
+//            println("PDLIf Then branch: "+ resThen.toString())
             //else
             val guardNo = Not(exprToForm(guardExpr))
             val bodyNo = SeqStmt(cond.map[StmtAbstractVar("ELSE")] as Stmt, contBody)
             val updateNo = input.update
             val typeNo = cond.map[PDLAbstractVar("TYPE")] as DeductType
             val resElse = SymbolicState(And(input.condition, UpdateOnFormula(updateNo, guardNo)), updateNo, Modality(bodyNo, typeNo), input.exceptionScopes)
-            println("PDLIf Else branch: "+ resElse.toString())
+//            println("PDLIf Else branch: "+ resElse.toString())
 
             val zeros  = divByZeroNodes(listOf(guardExpr), contBody, input, repos)
             return listOf<SymbolicTree>(SymbolicNode(resThen, info = InfoIfThen(guardExpr)), SymbolicNode(resElse, info = InfoIfElse(guardExpr))) + zeros
@@ -221,15 +233,15 @@ object PDLSkip : Rule(Modality(
             val updateYes = input.update
             val typeYes = cond.map[PDLAbstractVar("TYPE")] as DeductType
             val resThen = SymbolicState(input.condition, updateYes, Modality(bodyYes, typeYes), input.exceptionScopes)
-            println("PDLDemonIf is applied: ")
-            println("Demonic Then branch: "+ resThen.toString())
+//            println("PDLDemonIf is applied: ")
+//            println("Demonic Then branch: "+ resThen.toString())
             //else
             //val guardNo = Not(exprToForm(guardExpr))
             val bodyNo = SeqStmt(cond.map[StmtAbstractVar("ELSE")] as Stmt, contBody)
             val updateNo = input.update
             val typeNo = cond.map[PDLAbstractVar("TYPE")] as DeductType
             val resElse = SymbolicState(input.condition, updateNo, Modality(bodyNo, typeNo), input.exceptionScopes)
-            println("Demonic Else branch: "+ resElse.toString())
+//            println("Demonic Else branch: "+ resElse.toString())
 
             val zeros  = divByZeroNodes(listOf(), contBody, input, repos)
             return listOf<SymbolicTree>(SymbolicNode(resThen), SymbolicNode(resElse)) + zeros
@@ -255,13 +267,13 @@ class PDLProbIf(val repos: Repository) : Rule(Modality(
         val bodyYes = appendStmt(cond.map[StmtAbstractVar("THEN")] as Stmt, contBody)
         val updateYes = input.update
         val resThen = SymbolicState(input.condition, updateYes, Modality(bodyYes, PDLSpec(spec.post, p1, spec.equations.plus(PDLEquation(p, expectedValue.toString(), p1, p2)))), input.exceptionScopes)//Ask Eduard: Should we also add 0 <= p1 <=1?
-        println("PDLProbIf is applied: ")
-        println("Probablistic Then branch: "+ resThen.toString())
+//        println("PDLProbIf is applied: ")
+        println("Probablistic Then branch: "+spec.equations)
         //else
         val bodyNo = appendStmt(cond.map[StmtAbstractVar("ELSE")] as Stmt, contBody)
         val updateNo = input.update
         val resElse = SymbolicState(input.condition, updateNo, Modality(bodyNo, PDLSpec(spec.post, p2, spec.equations.plus(PDLEquation(p, expectedValue.toString(), p1, p2)))), input.exceptionScopes)
-        println("Probablistic Else branch: "+ resElse.toString())
+        println("Probablistic Else branch: "+ spec.equations)
 
 
         return listOf<SymbolicTree>(SymbolicNode(resThen, info = NoInfo()), SymbolicNode(resElse, info = NoInfo()))

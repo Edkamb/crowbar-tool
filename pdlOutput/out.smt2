@@ -179,7 +179,7 @@
     ; Precondition
     (assert true )
     ; Negated postcondition
-    (assert (not (=  1 2))) 
+    (assert (not (=  2 2))) 
     (check-sat)
     
     (exit)

@@ -23,8 +23,6 @@ import org.abs_models.frontend.ast.*
 import org.abs_models.frontend.typechecker.DataTypeType
 import org.abs_models.frontend.typechecker.Type
 import org.abs_models.frontend.typechecker.UnknownType
-import java.io.PrintWriter
-import java.io.StringWriter
 import kotlin.system.exitProcess
 
 
