@@ -242,6 +242,13 @@ fun evaluateSMT(smtRep : String) : Boolean {
     throw Exception("Error during SMT evaluation: $res")
 }
 
+fun evaluateNotSMT(smtRep : String) : Boolean {
+    val res = plainSMTCommand(smtRep)
+    if(res != null && res.trim() == "unsat") return false
+    if(res != null && res.trim() == "sat") return true
+    if(res != null && res.trim() == "unknown") return false
+    throw Exception("Error during SMT evaluation: $res")
+}
 fun evaluateSMT(ante: Formula, succ: Formula) : Boolean {
     val smtRep = generateSMT(ante, succ)
     if(verbosity >= Verbosity.VV) println("crowbar-v: \n$smtRep")
@@ -290,14 +297,14 @@ fun translateType(type:Type) : String{
 //My method to get the equations and give a string
 
 fun generateSMT4PDL(probVars : Set<String>, equations : Set<PDLEquation>) : String{
-    var heaps = setOf<String>()
+    var heaps = mutableSetOf<String>()
     probVars.forEach{
-        heaps.joinToString("\n\t"){"(declare-fun ${it} () Real)"}
+        heaps.add("(declare-fun ${it} () Real)")
     }
 
     probVars.forEach{
-        heaps.joinToString("\n\t"){"(assert (<= 0 ${it} ))"}
-        heaps.joinToString("\n\t"){"(assert (<= ${it} 1 ))"}
+        heaps.add("(assert (<= 0 ${it} ))")
+        heaps.add("(assert (<= ${it} 1 ))")
     }
 
     equations.forEach{
@@ -305,8 +312,9 @@ fun generateSMT4PDL(probVars : Set<String>, equations : Set<PDLEquation>) : Stri
         val split = it.split
         val tail1 = it.tail1
         val tail2 = it.tail2
-        heaps.joinToString("\n\t"){"(assert (<= (${head}) (+ (* ${split}${tail1}) (* (- 1 ${split})${tail2}))"}
+        heaps.add("(assert (<= (${head}) (+ (* ${split} ${tail1}) (* (- 1 ${split}) ${tail2}))")
     }
-    heaps.joinToString("\n\t"){"(check-sat)"}
-    return heaps.toString()
+    heaps.add("(check-sat)")
+    output(heaps.toString(), Verbosity.SILENT)
+    return heaps.joinToString("\n\t")
 }

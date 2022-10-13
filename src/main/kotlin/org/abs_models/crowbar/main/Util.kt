@@ -3,6 +3,7 @@ package org.abs_models.crowbar.main
 import org.abs_models.crowbar.data.*
 import org.abs_models.crowbar.data.Function
 import org.abs_models.crowbar.data.Stmt
+import org.abs_models.crowbar.interfaces.evaluateNotSMT
 import org.abs_models.crowbar.interfaces.generateSMT4PDL
 import org.abs_models.crowbar.interfaces.genericTypeSMTName
 import org.abs_models.crowbar.interfaces.translateExpression
@@ -287,9 +288,10 @@ fun executeNode(node : SymbolicNode, repos: Repository, usedType: KClass<out Ded
                     probVars.plus(it.tail2)
                 }
 
-                generateSMT4PDL(probVars, l.equations)
-
-                output("Crowbar: open static leaf ${l.equations.toString()}", Verbosity.SILENT)
+                val smt = generateSMT4PDL(probVars, l.equations)
+                val res = evaluateNotSMT(smt)
+                output("Crowbar: open static leaf ${l.equations.toString()}"+ res, Verbosity.SILENT)
+                closed = closed && res
             }
         }
     }
