@@ -10,8 +10,4 @@ Int x = 0;
 [Spec: Prob(1/2)]
 if( True ) { x = 1; }
 else { x = 2; }
-
-/*[Spec: Demonic]
-if( True ) { x = x + 1; }
-else { x = x + 2; }*/
 }

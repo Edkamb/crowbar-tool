@@ -1,0 +1,18 @@
+module Dummy;
+
+data NewSpec = Demonic | Prob(Rat);
+
+[Spec: Ensures(x == 1)]
+[Spec: Prob(1/4)]
+{
+Int x = 0;
+
+[Spec: Demonic]
+if( True ) { x = 1; }
+else {
+    [Spec: Prob(1/4)]
+    if( True ) { x = -1; }
+    else { x = 1; }
+}
+
+}
