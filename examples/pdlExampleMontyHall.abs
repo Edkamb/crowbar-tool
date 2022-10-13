@@ -1,0 +1,42 @@
+module Dummy;
+
+data NewSpec = Demonic | Prob(Rat);
+
+[Spec: Ensures(choice == prize)]
+[Spec: Prob(2/3)]
+{
+Int prize = -1;
+Int choice = -1;
+Int open = -1;
+Int sw = 1;
+
+[Spec: Demonic]
+if( True ) { prize = 0; }
+else {
+    [Spec: Demonic]
+    if( True ) { prize = 1; }
+    else { prize = 2; }
+}
+
+[Spec: Prob(1/3)]
+if( True ) { choice = 0; }
+else {
+    [Spec: Prob(1/2)]
+    if( True ) { prize = 1; }
+    else { prize = 2; }
+}
+
+if(prize==choice){
+    [Spec: Demonic]
+    if( True ) {  open = (prize + 1 ) % 3; }
+    else { open = (prize + 2) % 3; }
+}
+else {
+    prize = ((2 * prize) - choice) % 3;
+}
+
+if(sw==1){
+    choice = ((2 * choice) - open) % 3;
+}
+else { skip; }
+}
