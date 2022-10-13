@@ -12,6 +12,7 @@ import org.abs_models.crowbar.tree.LogicNode
 import org.abs_models.crowbar.tree.StaticNode
 import org.abs_models.crowbar.tree.SymbolicNode
 import org.abs_models.crowbar.tree.getStrategy
+import org.abs_models.crowbar.types.PDLEquation
 import org.abs_models.crowbar.types.booleanFunction
 import org.abs_models.frontend.ast.*
 import org.abs_models.frontend.typechecker.DataTypeType
@@ -113,7 +114,17 @@ fun<T : ASTNode<out ASTNode<*>>?> hasSpec(decl : ASTNode<T>, expectedSpec : Stri
     }
     return false
 }
-
+fun<T : ASTNode<out ASTNode<*>>?> extractExprSpec(decl : ASTNode<T>, expectedSpec : String) : Expr? {
+    for (annotation in decl.nodeAnnotations){
+        if(annotation.value !is DataConstructorExp) {
+            throw Exception("Could not extract any specification from $decl because of the expected value")
+        }
+        val annotated = annotation.value as DataConstructorExp
+        if(annotated.constructor != expectedSpec) continue
+        return translateExpression(annotated.getParam(0) as Exp, UnknownType.INSTANCE, emptyMap(),true).first
+    }
+    return null
+}
 fun<T : ASTNode<out ASTNode<*>>?> extractTermSpec(decl : ASTNode<T>, expectedSpec : String) : Term? {
         for (annotation in decl.nodeAnnotations){
             if(annotation.value !is DataConstructorExp) {
@@ -271,6 +282,8 @@ fun executeNode(node : SymbolicNode, repos: Repository, usedType: KClass<out Ded
 
     output("Crowbar  : closing open branches....")
     var closed = true
+    var probVars = mutableSetOf<String>()
+    var equations = mutableSetOf<PDLEquation>()
     for(l in node.collectLeaves()){
         when (l) {
             is LogicNode -> {
@@ -278,24 +291,25 @@ fun executeNode(node : SymbolicNode, repos: Repository, usedType: KClass<out Ded
                 output("Crowbar-v: "+ deupdatify(l.ante).prettyPrint()+"->"+deupdatify(l.succ).prettyPrint(), Verbosity.V)
                 closed = closed && l.evaluate()
             }
+
             is StaticNode -> {
 //                output("Crowbar: open static leaf ${l.str}", Verbosity.SILENT)
                 //set of probs, p s as function and make the eq s
                 // then give it to the evaluateSMT
-                var probVars = setOf<String>()
-                l.equations.forEach{
-                    probVars.plus(it.tail1)
-                    probVars.plus(it.tail2)
-                }
 
-                val smt = generateSMT4PDL(probVars, l.equations)
-                val res = evaluateNotSMT(smt)
-                output("Crowbar: open static leaf ${l.equations.toString()}"+ res, Verbosity.SILENT)
-                closed = closed && res
+                l.equations.forEach{
+                    if(it.tail1.toString().startsWith("p")) probVars.add(it.tail1)
+                    if(it.tail2.toString().startsWith("p")) probVars.add(it.tail2)
+                }
+                equations.addAll(l.equations)
+
             }
         }
     }
-
+    val smt = generateSMT4PDL(probVars, equations)
+    val res = evaluateNotSMT(smt)
+    output("Crowbar: open static leaf ${equations.toString()}"+ res, Verbosity.SILENT)
+    closed = closed && res
     if(!closed && investigate) {
         output("Crowbar  : failed to close node, starting investigator....")
         CounterexampleGenerator.investigateAll(node, identifier)

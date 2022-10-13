@@ -312,7 +312,7 @@ fun generateSMT4PDL(probVars : Set<String>, equations : Set<PDLEquation>) : Stri
         val split = it.split
         val tail1 = it.tail1
         val tail2 = it.tail2
-        heaps.add("(assert (<= (${head}) (+ (* ${split} ${tail1}) (* (- 1 ${split}) ${tail2}))")
+        heaps.add("(assert (<= ${head} (+ (* ${split} ${tail1}) (* (- 1 ${split}) ${tail2}))))")
     }
     heaps.add("(check-sat)")
     output(heaps.toString(), Verbosity.SILENT)

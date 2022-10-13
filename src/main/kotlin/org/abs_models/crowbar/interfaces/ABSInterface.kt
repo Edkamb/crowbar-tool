@@ -89,13 +89,13 @@ fun translateStatement(input: Stmt?, subst: Map<String, Expr>) : org.abs_models.
             val expr = translateExpression(input.conditionNoTransform, returnType, subst, false)
             if(hasSpec(input, "Demonic")) {
                 println("demonic!")
-                return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.DemonicIfStmt(translateStatement(input.then, subst), translateStatement(input.`else`, subst)))
+                return DemonicIfStmt(translateStatement(input.then, subst), translateStatement(input.`else`, subst))
 
             }
             else if(hasSpec(input, "Prob")) {
-                val v = extractTermSpec(input, "Prob")
+                val v = extractExprSpec(input, "Prob")
                 println("prob" + v.toString())
-                return appendDesugaredCaseExprs(expr.second, org.abs_models.crowbar.data.ProbIfStmt(expr.first, translateStatement(input.then, subst), translateStatement(input.`else`, subst)))
+                return ProbIfStmt(v!!, translateStatement(input.then, subst), translateStatement(input.`else`, subst))
             } else {
                 println("normal")
             }

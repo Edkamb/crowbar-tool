@@ -10,15 +10,23 @@ import org.abs_models.frontend.typechecker.UnknownType
 
 interface ProgramElement: Anything
 
-interface PP: ProgramElement
+interface PP: ProgramElement{
+    abstract fun toSMT() : String
+}
 data class PPId(val id: Int): PP, ProgramElement {
     override fun prettyPrint(): String {
         return "pp:$id"
+    }
+    override fun toSMT() : String {
+        return "p$id"
     }
 }
 
 data class PPAbstractVar(val name : String) : PP, AbstractVar {
     override fun prettyPrint(): String {
+        return name
+    }
+    override fun toSMT() : String {
         return name
     }
 }

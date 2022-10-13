@@ -1,7 +1,9 @@
 package org.abs_models.crowbar.types
 
 import org.abs_models.crowbar.data.*
+import org.abs_models.crowbar.interfaces.translateExpression
 import org.abs_models.crowbar.interfaces.translateStatement
+import org.abs_models.crowbar.investigator.Type
 import org.abs_models.crowbar.main.*
 import org.abs_models.crowbar.rule.FreshGenerator
 import org.abs_models.crowbar.rule.MatchCondition
@@ -41,7 +43,7 @@ interface PDLType : DeductType {
     fun extractPDLSpec(mainBlock: MainBlock) : PDLSpec{
         val postCond = extractSpec(mainBlock, "Ensures",mainBlock.type)
         println("Post Cond: "+ postCond.toString());
-        val prob = extractTermSpec(mainBlock, "Prob");
+        val prob = extractTermSpec(mainBlock, "Prob")?.toSMT()
         println("Probability: "+ prob);
 
         return PDLSpec(postCond, prob.toString(), setOf())
@@ -115,7 +117,7 @@ object PDLSkip : Rule(Modality(
 //            println("Static Node: " + stNode.toString())
         }
 //        val zeros  = divByZeroNodes(listOf(retExpr), SkipStmt, input, repos)
-        return listOf(res,stNode)
+        return listOf(stNode)
     }
     }
     object PDLSkipComposition : Rule(Modality(
@@ -259,22 +261,23 @@ class PDLProbIf(val repos: Repository) : Rule(Modality(
         val expectedValue = cond.map[ExprAbstractVar("LHS")] as Expr
         val spec = cond.map[PDLAbstractVar("Spec")] as PDLSpec
 
-        val p1 = FreshGenerator.getFreshPP().toString()
-        val p2 = FreshGenerator.getFreshPP().toString()
+        val expTerm = exprToTerm(expectedValue).toSMT()
+
+        val p1 = FreshGenerator.getFreshPP().toSMT()
+        val p2 = FreshGenerator.getFreshPP().toSMT()
         val p = spec.prob
 
         //then
         val bodyYes = appendStmt(cond.map[StmtAbstractVar("THEN")] as Stmt, contBody)
         val updateYes = input.update
-        val resThen = SymbolicState(input.condition, updateYes, Modality(bodyYes, PDLSpec(spec.post, p1, spec.equations.plus(PDLEquation(p, expectedValue.toString(), p1, p2)))), input.exceptionScopes)//Ask Eduard: Should we also add 0 <= p1 <=1?
+        val resThen = SymbolicState(input.condition, updateYes, Modality(bodyYes, PDLSpec(spec.post, p1, spec.equations.plus(PDLEquation(p, expTerm, p1, p2)))), input.exceptionScopes)//Ask Eduard: Should we also add 0 <= p1 <=1?
 //        println("PDLProbIf is applied: ")
         println("Probablistic Then branch: "+spec.equations)
         //else
         val bodyNo = appendStmt(cond.map[StmtAbstractVar("ELSE")] as Stmt, contBody)
         val updateNo = input.update
-        val resElse = SymbolicState(input.condition, updateNo, Modality(bodyNo, PDLSpec(spec.post, p2, spec.equations.plus(PDLEquation(p, expectedValue.toString(), p1, p2)))), input.exceptionScopes)
+        val resElse = SymbolicState(input.condition, updateNo, Modality(bodyNo, PDLSpec(spec.post, p2, spec.equations.plus(PDLEquation(p, expTerm, p1, p2)))), input.exceptionScopes)
         println("Probablistic Else branch: "+ spec.equations)
-
 
         return listOf<SymbolicTree>(SymbolicNode(resThen, info = NoInfo()), SymbolicNode(resElse, info = NoInfo()))
     }
