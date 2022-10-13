@@ -7,6 +7,7 @@ import org.abs_models.crowbar.main.ADTRepos.libPrefix
 import org.abs_models.crowbar.main.ADTRepos.objects
 import org.abs_models.crowbar.main.ADTRepos.setUsedHeaps
 import org.abs_models.crowbar.main.FunctionRepos.concretizeFunctionTosSMT
+import org.abs_models.crowbar.types.PDLEquation
 import org.abs_models.crowbar.types.booleanFunction
 import org.abs_models.frontend.typechecker.DataTypeType
 import org.abs_models.frontend.typechecker.Type
@@ -285,4 +286,27 @@ fun translateType(type:Type) : String{
         throw Exception("Parameter Type Cannot Be Translated")
     else
         libPrefix(type.qualifiedName)
+}
+//My method to get the equations and give a string
+
+fun generateSMT4PDL(probVars : Set<String>, equations : Set<PDLEquation>) : String{
+    var heaps = setOf<String>()
+    probVars.forEach{
+        heaps.joinToString("\n\t"){"(declare-fun ${it} () Real)"}
+    }
+
+    probVars.forEach{
+        heaps.joinToString("\n\t"){"(assert (<= 0 ${it} ))"}
+        heaps.joinToString("\n\t"){"(assert (<= ${it} 1 ))"}
+    }
+
+    equations.forEach{
+        val head = it.head
+        val split = it.split
+        val tail1 = it.tail1
+        val tail2 = it.tail2
+        heaps.joinToString("\n\t"){"(assert (<= (${head}) (+ (* ${split}${tail1}) (* (- 1 ${split})${tail2}))"}
+    }
+    heaps.joinToString("\n\t"){"(check-sat)"}
+    return heaps.toString()
 }

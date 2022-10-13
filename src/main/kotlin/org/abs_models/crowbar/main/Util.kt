@@ -3,13 +3,17 @@ package org.abs_models.crowbar.main
 import org.abs_models.crowbar.data.*
 import org.abs_models.crowbar.data.Function
 import org.abs_models.crowbar.data.Stmt
+import org.abs_models.crowbar.interfaces.generateSMT4PDL
+import org.abs_models.crowbar.interfaces.genericTypeSMTName
 import org.abs_models.crowbar.interfaces.translateExpression
 import org.abs_models.crowbar.investigator.CounterexampleGenerator
 import org.abs_models.crowbar.tree.LogicNode
 import org.abs_models.crowbar.tree.StaticNode
 import org.abs_models.crowbar.tree.SymbolicNode
 import org.abs_models.crowbar.tree.getStrategy
+import org.abs_models.crowbar.types.booleanFunction
 import org.abs_models.frontend.ast.*
+import org.abs_models.frontend.typechecker.DataTypeType
 import org.abs_models.frontend.typechecker.Type
 import org.abs_models.frontend.typechecker.UnknownType
 import java.io.File
@@ -275,6 +279,16 @@ fun executeNode(node : SymbolicNode, repos: Repository, usedType: KClass<out Ded
             }
             is StaticNode -> {
 //                output("Crowbar: open static leaf ${l.str}", Verbosity.SILENT)
+                //set of probs, p s as function and make the eq s
+                // then give it to the evaluateSMT
+                var probVars = setOf<String>()
+                l.equations.forEach{
+                    probVars.plus(it.tail1)
+                    probVars.plus(it.tail2)
+                }
+
+                generateSMT4PDL(probVars, l.equations)
+
                 output("Crowbar: open static leaf ${l.equations.toString()}", Verbosity.SILENT)
             }
         }
