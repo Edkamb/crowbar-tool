@@ -1,7 +1,8 @@
 module Dummy;
 
 data NewSpec = Demonic | Prob(Rat);
-
+/*Expected result from Z3: true*/
+/*Generated result by Z3: true*/
 [Spec: Ensures((x % 2 == 1) &&( x == 2 || x == 3 || x == 5))]
 [Spec: Prob(1/3)]
 {
