@@ -106,12 +106,12 @@ object PDLSkip : Rule(Modality(
 
         val stNode: StaticNode?
         if(res.evaluate()){
-            println(spec.prob + "==1")
-            val eqT = PDLEquation("1","1", spec.prob, "0")
-            stNode = StaticNode("",spec.equations.plus(eqT))
+            println(spec.prob + ">=1")
+//            val eqT = PDLEquation("1","1", spec.prob, "0")
+            stNode = StaticNode("",spec.equations)//.plus(eqT)
 //            println("Static Node: " + stNode.toString())
         } else{
-            println(spec.prob + "==0")
+            println(spec.prob + "<=0")
             val eqF = PDLEquation(spec.prob,"1","0", "0")
             stNode = StaticNode("",spec.equations.plus(eqF))
 //            println("Static Node: " + stNode.toString())
@@ -205,6 +205,8 @@ object PDLSkip : Rule(Modality(
             val resThen = SymbolicState(And(input.condition, UpdateOnFormula(updateYes, guardYes)), updateYes, Modality(bodyYes, typeYes), input.exceptionScopes)
 //           println("PDLIf is applied: ")
 //            println("PDLIf Then branch: "+ resThen.toString())
+            val shortThen = LogicNode(And(input.condition, UpdateOnFormula(updateYes, guardYes)), False).evaluate()
+
             //else
             val guardNo = Not(exprToForm(guardExpr))
             val bodyNo = SeqStmt(cond.map[StmtAbstractVar("ELSE")] as Stmt, contBody)
@@ -212,8 +214,12 @@ object PDLSkip : Rule(Modality(
             val typeNo = cond.map[PDLAbstractVar("TYPE")] as DeductType
             val resElse = SymbolicState(And(input.condition, UpdateOnFormula(updateNo, guardNo)), updateNo, Modality(bodyNo, typeNo), input.exceptionScopes)
 //            println("PDLIf Else branch: "+ resElse.toString())
-
+            val shortElse = LogicNode(And(input.condition, UpdateOnFormula(updateYes, guardNo)), False).evaluate()
             val zeros  = divByZeroNodes(listOf(guardExpr), contBody, input, repos)
+            var next = zeros
+            if(shortThen && !shortElse) next = next + listOf(SymbolicNode(resElse, info = InfoIfThen(guardExpr)))
+            else if(shortElse && !shortThen) next = next +listOf(SymbolicNode(resElse, info = InfoIfElse(guardExpr)))
+            else next = next+ listOf(SymbolicNode(resThen, info = InfoIfThen(guardExpr)), SymbolicNode(resElse, info = InfoIfElse(guardExpr)))
             return listOf<SymbolicTree>(SymbolicNode(resThen, info = InfoIfThen(guardExpr)), SymbolicNode(resElse, info = InfoIfElse(guardExpr))) + zeros
         }
     }
