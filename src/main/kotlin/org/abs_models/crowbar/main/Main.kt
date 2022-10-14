@@ -15,7 +15,6 @@ import com.github.ajalt.clikt.parameters.types.path
 import com.github.ajalt.clikt.parameters.types.restrictTo
 import org.abs_models.crowbar.interfaces.filterAtomic
 import org.abs_models.crowbar.types.LocalTypeType
-import org.abs_models.crowbar.types.PDLType
 import org.abs_models.crowbar.types.PostInvType
 import org.abs_models.frontend.ast.*
 import java.io.File
@@ -72,7 +71,7 @@ class Main : CliktCommand() {
     private val tmp        by   option("--tmp", "-t", help="Path to a directory used to store .smt and counterexample files").path().default(Paths.get(tmpPath))
     private val smtCmd     by   option("--smt", "-s", help="Command to start SMT solver").default(smtPath)
     private val verbose    by   option("--verbose", "-v", help="Verbosity output level").int().restrictTo(Verbosity.values().indices).default(Verbosity.NORMAL.ordinal)
-    private val deductType by   option("--deduct", "-d", help="Used deductive system").choice("PostInv","LocalType","PDL").convert { when(it){"PostInv" -> PostInvType::class; "LocalType" -> LocalTypeType::class; "PDL" -> PDLType::class; else -> throw Exception(); } }.default(PostInvType::class)
+    private val deductType by   option("--deduct", "-d", help="Used deductive system").choice("PostInv","LocalType").convert { when(it){"PostInv" -> PostInvType::class; "LocalType" -> LocalTypeType::class; else -> throw Exception(); } }.default(PostInvType::class)
     private val freedom    by   option("--freedom", "-fr", help="Performs a simple check for potentially deadlocking methods").flag()
     private val invFlag    by   option("--investigate", "-inv", help="Generate counterexamples for uncloseable branches").flag()
     private val conciseProofsFlag    by  option("--concise_proofs", "-cp", help="Generate concise proofs omitting unused declarations").flag()
