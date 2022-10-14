@@ -112,7 +112,7 @@ object PDLSkip : Rule(Modality(
 //            println("Static Node: " + stNode.toString())
         } else{
             println(spec.prob + "==0")
-            val eqF = PDLEquation("0","1", spec.prob, "0")
+            val eqF = PDLEquation(spec.prob,"1","0", "0")
             stNode = StaticNode("",spec.equations.plus(eqF))
 //            println("Static Node: " + stNode.toString())
         }
@@ -302,8 +302,8 @@ class PDLWeakening(val repos: Repository) : Rule(Modality(
     override fun transform(cond: MatchCondition, input: SymbolicState): List<SymbolicTree> {//Why this doesn't apply?
         val count = cond.map[StmtAbstractVar("COUNT")] as Stmt
         val spec = cond.map[PDLAbstractVar("Spec")] as PDLSpec
-//            println("count: "+count)
-//            println("spec: " + spec)
+            println("count: "+count)
+            println("spec: " + spec)
 
         val newProb = FreshGenerator.getFreshPP().toSMT()
         val newEq = PDLEquation(spec.prob, " 1 ", newProb, " 0 ")
