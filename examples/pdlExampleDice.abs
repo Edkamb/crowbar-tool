@@ -2,12 +2,12 @@ module Dummy;
 
 data NewSpec = Demonic | Prob(Rat);
 
-[Spec: Ensures((x % 2 == 1) || (x == 2) || (x == 3) || (x == 5))]
-[Spec: Prob(1/2)]
+[Spec: Ensures((x % 2 == 1) &&( x == 2 || x == 3 || x == 5))]
+[Spec: Prob(1/3)]
 {
 Int x = 0;
 
-[Spec: Prob(1/2)]
+[Spec: Prob(1/6)]
 if( True ) { x = 1; }
 else {
     [Spec: Prob(1/5)]
