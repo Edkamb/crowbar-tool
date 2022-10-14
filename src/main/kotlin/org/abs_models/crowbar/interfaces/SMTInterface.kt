@@ -7,6 +7,7 @@ import org.abs_models.crowbar.main.ADTRepos.libPrefix
 import org.abs_models.crowbar.main.ADTRepos.objects
 import org.abs_models.crowbar.main.ADTRepos.setUsedHeaps
 import org.abs_models.crowbar.main.FunctionRepos.concretizeFunctionTosSMT
+import org.abs_models.crowbar.types.PDLEquation
 import org.abs_models.crowbar.types.booleanFunction
 import org.abs_models.frontend.typechecker.DataTypeType
 import org.abs_models.frontend.typechecker.Type
@@ -241,6 +242,13 @@ fun evaluateSMT(smtRep : String) : Boolean {
     throw Exception("Error during SMT evaluation: $res")
 }
 
+fun evaluateNotSMT(smtRep : String) : Boolean {
+    val res = plainSMTCommand(smtRep)
+    if(res != null && res.trim() == "unsat") return false
+    if(res != null && res.trim() == "sat") return true
+    if(res != null && res.trim() == "unknown") return false
+    throw Exception("Error during SMT evaluation: $res")
+}
 fun evaluateSMT(ante: Formula, succ: Formula) : Boolean {
     val smtRep = generateSMT(ante, succ)
     if(verbosity >= Verbosity.VV) println("crowbar-v: \n$smtRep")
@@ -285,4 +293,28 @@ fun translateType(type:Type) : String{
         throw Exception("Parameter Type Cannot Be Translated")
     else
         libPrefix(type.qualifiedName)
+}
+//My method to get the equations and give a string
+
+fun generateSMT4PDL(probVars : Set<String>, equations : Set<PDLEquation>) : String{
+    var heaps = mutableSetOf<String>()
+    probVars.forEach{
+        heaps.add("(declare-fun ${it} () Real)")
+    }
+
+    probVars.forEach{
+        heaps.add("(assert (<= 0 ${it} ))")
+        heaps.add("(assert (<= ${it} 1 ))")
+    }
+
+    equations.forEach{
+        val head = it.head
+        val split = it.split
+        val tail1 = it.tail1
+        val tail2 = it.tail2
+        heaps.add("(assert (<= ${head} (+ (* ${split} ${tail1}) (* (- 1 ${split}) ${tail2}))))")
+    }
+    heaps.add("(check-sat)")
+    output(heaps.toString(), Verbosity.SILENT)
+    return heaps.joinToString("\n\t")
 }

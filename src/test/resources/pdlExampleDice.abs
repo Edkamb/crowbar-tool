@@ -1,0 +1,31 @@
+module Dummy;
+/*Expected result from Z3: true*/
+/*Generated result by Z3: true*/
+data NewSpec = Demonic | Prob(Rat);
+
+[Spec: Ensures((x % 2 == 1) &&( x == 2 || x == 3 || x == 5))]
+[Spec: Prob(1/3)]
+{
+Int x = 0;
+
+[Spec: Prob(1/6)]
+if( True ) { x = 1; }
+else {
+    [Spec: Prob(1/5)]
+    if( True ) { x = 2; }
+    else {
+        [Spec: Prob(1/4)]
+        if( True ) { x = 3; }
+        else {
+            [Spec: Prob(1/3)]
+            if( True ) { x = 4; }
+            else {
+                [Spec: Prob(1/2)]
+                if( True ) { x = 5; }
+                else { x = 6; }
+            }
+        }
+    }
+}
+
+}
