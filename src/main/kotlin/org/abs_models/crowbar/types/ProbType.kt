@@ -105,15 +105,15 @@ object PDLSkip : Rule(Modality(
         )
 
         val stNode: StaticNode?
-        if(res.evaluate()){
+        if(res.evaluate() && spec.prob.startsWith("p")){ //We need to do this in a proper way
             println(spec.prob + ">=1")
-//            val eqT = PDLEquation("1","1", spec.prob, "0")
-            stNode = StaticNode("",spec.equations)//.plus(eqT)
+            val eqT = PDLEquation("1","1", spec.prob, "0")
+            stNode = StaticNode("",spec.equations.plus(eqT))//.plus(eqT)
 //            println("Static Node: " + stNode.toString())
         } else{
             println(spec.prob + "<=0")
             val eqF = PDLEquation(spec.prob,"1","0", "0")
-            stNode = StaticNode("",spec.equations.plus(eqF))
+            stNode = StaticNode("",spec.equations)//.plus(eqF)
 //            println("Static Node: " + stNode.toString())
         }
 //        val zeros  = divByZeroNodes(listOf(retExpr), SkipStmt, input, repos)
@@ -218,7 +218,7 @@ object PDLSkip : Rule(Modality(
             val zeros  = divByZeroNodes(listOf(guardExpr), contBody, input, repos)
             var next = zeros
             if(shortThen && !shortElse) next = next + listOf(SymbolicNode(resElse, info = InfoIfThen(guardExpr)))
-            else if(shortElse && !shortThen) next = next +listOf(SymbolicNode(resElse, info = InfoIfElse(guardExpr)))
+            else if(shortElse && !shortThen) next = next +listOf(SymbolicNode(resThen, info = InfoIfElse(guardExpr)))
             else next = next+ listOf(SymbolicNode(resThen, info = InfoIfThen(guardExpr)), SymbolicNode(resElse, info = InfoIfElse(guardExpr)))
             return listOf<SymbolicTree>(SymbolicNode(resThen, info = InfoIfThen(guardExpr)), SymbolicNode(resElse, info = InfoIfElse(guardExpr))) + zeros
         }
@@ -297,6 +297,9 @@ class PDLProbIf(val repos: Repository) : Rule(Modality(
             input.exceptionScopes
         )
         println("Probablistic Else branch: " + spec.equations)
+
+//        val shortThen = LogicNode(input.condition, False).evaluate()
+//        val shortElse = LogicNode(input.condition, UpdateOnFormula(updateYes, guardNo)), False).evaluate()
 
         return listOf<SymbolicTree>(SymbolicNode(resThen, info = NoInfo()), SymbolicNode(resElse, info = NoInfo()))
     }
