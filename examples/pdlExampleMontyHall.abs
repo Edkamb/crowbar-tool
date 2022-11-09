@@ -33,7 +33,7 @@ if(prize==choice){
     else { open = (prize + 2) % 3; }
 }
 else {
-    prize = ((2 * prize) - choice) % 3;
+    open = ((2 * prize) - choice) % 3;
 }
 
 if(sw==1){
